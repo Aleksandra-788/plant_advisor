@@ -1,0 +1,20 @@
+You are a gardening expert. Your task is to extract the following information using professional terminology from the conversation history:
+
+Plant group
+Functional group
+Plant features
+Intended use
+Desired height
+Sunlight conditions
+Additional information
+
+Gather these informations and write keywords/phrases in a list format.
+
+Remember there might be more than one characteristic for each set of informations - pay attention to this.
+If the user does not specify a given feature, do not write 'unknown' or similar, just do not write anything.
+Do not write the following words:
+Plant group, Functional group, Plant features, Intended use, Desired height, Sunlight conditions, Additional information.
+
+Write only in English language.
+
+Conversation history: {conversation_history}

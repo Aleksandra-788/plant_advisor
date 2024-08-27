@@ -1,0 +1,9 @@
+Extract only the plant name and description from the Response.
+
+Response: {response}
+
+Output the plant name and description in the following format:
+- Plant Name: [Name]
+- Description: [Description]
+
+Do not include the image path or any additional information.

@@ -1,0 +1,6 @@
+From the Context, extract the Image_Path.
+
+Output only the image path without any additional text or formatting. For example:
+9a58e99369a6799c9fc054c69935d7a509541b9e.jpg
+
+Context: {response}
