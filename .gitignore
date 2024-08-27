@@ -4,7 +4,8 @@ data/
 .files/
 .chainlit/
 .DS_Store
-
+.idea
+chainlit.md
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
