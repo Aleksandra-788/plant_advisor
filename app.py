@@ -79,6 +79,7 @@ async def handle_conversation_end(history, database):
     await cl.Message(content=f"Plant Groups: {plant_groups}").send()
     for idx, doc in enumerate(retriever_docs):
         await cl.Message(content=f"Document {idx + 1}: {doc.page_content}").send()
+    await cl.Message(content=f"Response: {response}").send()
     await cl.Message(content=f"Final Response: {final_response}").send()
     await cl.Message(content=f"Image Path: {image_name}").send()
 

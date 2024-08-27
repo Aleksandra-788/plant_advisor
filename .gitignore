@@ -4,7 +4,7 @@ data/
 .files/
 .chainlit/
 .DS_Store
-.idea
+.idea/
 chainlit.md
 # Byte-compiled / optimized / DLL files
 __pycache__/
