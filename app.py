@@ -16,6 +16,7 @@ if not database_manager.collection_exists_and_filled():
 else:
     print("Collection already exists and is filled with data.")
 
+
 @cl.on_chat_start
 async def on_chat_start():
     database = database_manager.create_chroma_database()
@@ -24,7 +25,7 @@ async def on_chat_start():
     cl.user_session.set("database", database)
     cl.user_session.set("history", history)
 
-    await cl.Message(content="I am ready to talk!").send()
+    await cl.Message(content="I am a virtual gardening advisor. How can I help you!").send()
 
 
 @cl.on_message
@@ -64,8 +65,8 @@ async def handle_conversation_end(history, database):
 
     # debug
     retriever = rag_manager.create_retriever(plant_groups=plant_groups)
-    retriever_docs = retriever.get_relevant_documents(plant_description)
-
+    # retriever_docs = retriever.get_relevant_documents(plant_description)
+    retriever_docs = retriever.invoke(plant_description)
     response = rag_manager.get_response(plant_groups=plant_groups, plant_description=plant_description)
     final_response = extractor.extract_informations_from_response(prompt_manager=prompt_manager,
                                                                   prompt_file_name="extract_final_response",
