@@ -38,7 +38,6 @@ class InformationExtractor:
             | self.llm
             | StrOutputParser()
         )
-        print(f"extract_string_chain type : {type(extract_string_chain)}")
         return extract_string_chain
 
     def _create_extract_list_chain(self, prompt: PromptTemplate) -> Runnable:
