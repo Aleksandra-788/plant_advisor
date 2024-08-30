@@ -1,6 +1,7 @@
-From the Context, extract the Image_Path.
+From the Context, extract list with image_paths in order of appearance.
+Output only image paths without any additional text or formatting.
 
-Output only the image path without any additional text or formatting. For example:
-9a58e99369a6799c9fc054c69935d7a509541b9e.jpg
+Example of image_path:
+124503300cf2670f2477c0251160c613db6f36b3.jpg, 1242670f2477c0f36b3.jpg
 
 Context: {response}

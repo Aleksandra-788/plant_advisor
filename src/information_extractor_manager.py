@@ -1,7 +1,7 @@
 from typing import List, Union
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.runnables import Runnable
-from langchain_core.output_parsers import CommaSeparatedListOutputParser, StrOutputParser
+from langchain_core.output_parsers import CommaSeparatedListOutputParser, StrOutputParser, JsonOutputParser
 from langchain_openai import ChatOpenAI
 from src.prompt_manager import PromptManager
 
@@ -58,6 +58,24 @@ class InformationExtractor:
         )
         return extract_list_chain
 
+    # def _create_extract_json_chain(self, prompt: PromptTemplate) -> Runnable:
+    #     """
+    #     Creates a processing chain for extracting information as a comma-separated list.
+    #
+    #     Args:
+    #         prompt (PromptTemplate): The prompt to be used for extraction.
+    #
+    #     Returns:
+    #         Runnable: A chain object that processes the prompt with the language model and comma-separated list output
+    #         parser.
+    #     """
+    #     extract_json_chain = (
+    #         prompt
+    #         | self.llm
+    #         | JsonOutputParser()
+    #     )
+    #     return extract_json_chain
+
     def extract_informations_from_response(self, prompt_manager: PromptManager, prompt_file_name: str, history: str) \
             -> str:
         """
@@ -98,3 +116,21 @@ class InformationExtractor:
         else:
             list_of_elements = self._create_extract_list_chain(prompt).invoke(history)
             return list_of_elements
+
+    def extract_image_paths_from_response(self, prompt_manager: PromptManager, prompt_file_name: str, history: str) \
+            -> str:
+        """
+        Extracts information from a response based on a prompt file and history, returning a cleaned string.
+
+        Args:
+            prompt_manager (PromptManager): An instance of PromptManager used to create the prompt.
+            prompt_file_name (str): The name of the prompt file to load.
+            history (str): The history of interactions to be passed to the prompt.
+
+        Returns:
+            str: The extracted information as a cleaned string.
+        """
+        prompt = prompt_manager.create_prompt(file_name=prompt_file_name)
+        list_chain = self._create_extract_list_chain(prompt)
+        image_paths = list_chain.invoke(history)
+        return image_paths

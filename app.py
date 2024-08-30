@@ -65,15 +65,14 @@ async def handle_conversation_end(history, database):
 
     # debug
     retriever = rag_manager.create_retriever(plant_groups=plant_groups)
-    # retriever_docs = retriever.get_relevant_documents(plant_description)
     retriever_docs = retriever.invoke(plant_description)
     response = rag_manager.get_response(plant_groups=plant_groups, plant_description=plant_description)
     final_response = extractor.extract_informations_from_response(prompt_manager=prompt_manager,
                                                                   prompt_file_name="extract_final_response",
                                                                   history=response)
 
-    image_name = extractor.extract_informations_from_response(prompt_manager=prompt_manager,
-                                                              prompt_file_name="extract_image_path", history=response)
+    image_names = extractor.extract_image_paths_from_response(prompt_manager=prompt_manager,
+                                                             prompt_file_name="extract_image_path", history=response)
     chat_manager.clear_session_history()
 
     await cl.Message(content=f"Plant Description: {plant_description}").send()
@@ -82,11 +81,12 @@ async def handle_conversation_end(history, database):
         await cl.Message(content=f"Document {idx + 1}: {doc.page_content}").send()
     await cl.Message(content=f"Response: {response}").send()
     await cl.Message(content=f"Final Response: {final_response}").send()
-    await cl.Message(content=f"Image Path: {image_name}").send()
 
-    if image_name != "9a58e99369a6799c9fc054c69935d7a509541b9e.jpg":
-        image = cl.Image(path=f"data/images/{image_name}", display='inline', size='large', name='plant')
-        await cl.Message(
-            content="Plant image",
-            elements=[image],
-        ).send()
+    for image_name in image_names:
+        if image_name != "9a58e99369a6799c9fc054c69935d7a509541b9e.jpg":
+            await cl.Message(content=f"Image Path: {image_name}").send()
+            image = cl.Image(path=f"data/images/{image_name}", display='inline', size='large', name='plant')
+            await cl.Message(
+                content="Plant image",
+                elements=[image],
+            ).send()
