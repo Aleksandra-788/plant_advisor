@@ -144,7 +144,7 @@ class ChromaDatabaseManager:
                 column_names[1]: row[column_names[1]],
                 column_names[2]: row[column_names[2]],
                 column_names[3]: row[column_names[3]],
-                column_names[4]: row[column_names[4]],
+                # column_names[4]: row[column_names[4]],
                 column_names[5]: row[column_names[5]],
                 column_names[7]: row[column_names[7]]
             })

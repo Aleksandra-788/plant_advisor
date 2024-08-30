@@ -101,8 +101,7 @@ async def handle_conversation_end(history, database):
     chat_manager.clear_session_history()
     logger.info("Cleared session history.")
 
-
-    await cl.Message(content=f"Final Response: {final_response}").send()
+    await cl.Message(content=final_response).send()
 
     for image_name in image_names:
         if image_name != "9a58e99369a6799c9fc054c69935d7a509541b9e.jpg":

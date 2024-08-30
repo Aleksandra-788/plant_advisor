@@ -7,7 +7,7 @@ Context: {context}.
 For each recommended plant, please include:
 1. The name of the plant.
 2. A brief description of the plant.
-3. The path to an image of the plant.
+3. The path to an image of the plant (ensure it include the '.jpg' extension)
 
 For each recommended plant please provide the information in the following format:
 - Plant Name: [Name]
