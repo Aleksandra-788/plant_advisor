@@ -107,6 +107,6 @@ async def handle_conversation_end(history, database):
         if image_name != "9a58e99369a6799c9fc054c69935d7a509541b9e.jpg":
             image = cl.Image(path=f"data/images/{image_name}", display='inline', size='large', name='plant')
             await cl.Message(
-                content="Plant image",
+                content=" ",
                 elements=[image],
             ).send()
