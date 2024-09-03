@@ -58,23 +58,23 @@ class InformationExtractor:
         )
         return extract_list_chain
 
-    # def _create_extract_json_chain(self, prompt: PromptTemplate) -> Runnable:
-    #     """
-    #     Creates a processing chain for extracting information as a comma-separated list.
-    #
-    #     Args:
-    #         prompt (PromptTemplate): The prompt to be used for extraction.
-    #
-    #     Returns:
-    #         Runnable: A chain object that processes the prompt with the language model and comma-separated list output
-    #         parser.
-    #     """
-    #     extract_json_chain = (
-    #         prompt
-    #         | self.llm
-    #         | JsonOutputParser()
-    #     )
-    #     return extract_json_chain
+    def _create_extract_json_chain(self, prompt: PromptTemplate) -> Runnable:
+        """
+        Creates a processing chain for extracting information as a comma-separated list.
+
+        Args:
+            prompt (PromptTemplate): The prompt to be used for extraction.
+
+        Returns:
+            Runnable: A chain object that processes the prompt with the language model and comma-separated list output
+            parser.
+        """
+        extract_json_chain = (
+            prompt
+            | self.llm
+            | JsonOutputParser()
+        )
+        return extract_json_chain
 
     def extract_informations_from_response(self, prompt_manager: PromptManager, prompt_file_name: str, history: str) \
             -> str:
@@ -134,3 +134,9 @@ class InformationExtractor:
         list_chain = self._create_extract_list_chain(prompt)
         elements = list_chain.invoke(history)
         return elements
+
+    def extract_json(self, prompt_manager: PromptManager, prompt_file_name: str, history: str):
+        prompt = prompt_manager.create_prompt(file_name=prompt_file_name)
+        json_chain = self._create_extract_json_chain(prompt)
+        dict_of_plants = json_chain.invoke(history)
+        return  dict_of_plants

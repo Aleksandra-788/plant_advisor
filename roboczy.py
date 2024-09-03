@@ -24,7 +24,7 @@ Description: This vigorous climber features semi-evergreen leaves made up of 5 l
 Image Path: f1a3d937c2385a2ef39a
 """
 
-image_names = extractor.extract_image_paths_from_response(prompt_manager=prompt_manager,
-                                                             prompt_file_name="extract_image_path", history=response)
-print(image_names)
-print(type(image_names))
+
+dict_of_plants = extractor.extract_json(prompt_manager=prompt_manager, prompt_file_name="extract_dict", history=response)
+print(dict_of_plants)
+print(type(dict_of_plants))

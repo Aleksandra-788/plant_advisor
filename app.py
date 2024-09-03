@@ -92,29 +92,24 @@ async def handle_conversation_end(history, database):
     logger.info("Generating response based on retrieved documents.")
     response = rag_manager.get_response(plant_groups=plant_groups, plant_description=plant_description)
     logger.info(f"Response: {response}")
+
+    dict_of_plants = extractor.extract_json(prompt_manager=prompt_manager, prompt_file_name="extract_dict",
+                                            history=response)
+    logger.info(f"Extracted plants from response: {dict_of_plants}")
+
     final_response = extractor.extract_informations_from_response(prompt_manager=prompt_manager,
                                                                   prompt_file_name="extract_final_response",
                                                                   history=response)
     logger.info(f"Final response generated: {final_response}")
-
-    logger.info("Extracting image paths from final response.")
-    image_names = extractor.extract_elements_from_response(prompt_manager=prompt_manager,
-                                                             prompt_file_name="extract_image_path", history=response)
-    logger.info(f"Extracted image paths from final response: {image_names}")
-
-    plant_names = extractor.extract_elements_from_response(prompt_manager=prompt_manager,
-                                                             prompt_file_name="extract_plant_name", history=final_response)
-    logger.info(f"Extracted plant names from final response: {plant_names}")
-
     chat_manager.clear_session_history()
     logger.info("Cleared session history.")
-
     await cl.Message(content=final_response).send()
-
-    for image_name, plant_name in zip(image_names, plant_names):
-        # if image_name != "9a58e99369a6799c9fc054c69935d7a509541b9e.jpg":
-        image = cl.Image(path=f"data/images/{image_name}", display='inline', size='large', name='plant')
+    for plant_name, image_path in dict_of_plants.items():
+        image = cl.Image(path=f"data/images/{image_path}", display='inline', size='large', name='plant')
         await cl.Message(
             content=plant_name,
             elements=[image],
         ).send()
+
+
+
