@@ -4,6 +4,6 @@ Ensure that all image paths include the '.jpg' extension.
 
 Example output:
   Liquidambar styraciflua: 124503300cf2670f2477c0251160c613db6f36b3.jpg,
-  Acer negundo: 9a58e99369a6799c9fc054c69935d7a509541b9e.jpg
+  Acer negundo: 34a9dbca19c9ff2e992b0e898c416c66b43e0069.jpg
 
 Context: {response}

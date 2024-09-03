@@ -74,12 +74,12 @@ async def handle_conversation_end(history, database):
     logger.info("Extracting plant description from conversation history.")
     plant_description = extractor.extract_informations_from_response(prompt_manager=prompt_manager,
                                                                      prompt_file_name="extract_informations_template",
-                                                                   history=history)
+                                                                     history=history)
     logger.info(f"Extracted plant description: {plant_description}")
     logger.info("Extracting plant groups from conversation history.")
     plant_groups = extractor.extract_plant_groups_from_response(prompt_manager=prompt_manager,
-                                                        prompt_file_name="extract_plant_group_template",
-                                                        history=history)
+                                                                prompt_file_name="extract_plant_group_template",
+                                                                history=history)
     logger.info(f"Extracted plant groups: {plant_groups}")
     rag_manager = RAGManager(prompt_manager=prompt_manager, vectorstore=database)
 
@@ -93,8 +93,8 @@ async def handle_conversation_end(history, database):
     response = rag_manager.get_response(plant_groups=plant_groups, plant_description=plant_description)
     logger.info(f"Response: {response}")
 
-    dict_of_plants = extractor.extract_json(prompt_manager=prompt_manager, prompt_file_name="extract_dict",
-                                            history=response)
+    dict_of_plants = extractor.extract_plant_names_and_image_paths(prompt_manager=prompt_manager,
+                                                                   prompt_file_name="extract_dict", history=response)
     logger.info(f"Extracted plants from response: {dict_of_plants}")
 
     final_response = extractor.extract_informations_from_response(prompt_manager=prompt_manager,
@@ -111,6 +111,3 @@ async def handle_conversation_end(history, database):
             content=plant_name,
             elements=[image],
         ).send()
-
-
-

@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Dict
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_core.output_parsers import CommaSeparatedListOutputParser, StrOutputParser, JsonOutputParser
@@ -23,58 +23,28 @@ class InformationExtractor:
         """
         self.llm = ChatOpenAI(model_name=openai_llm_model_name, temperature=0, max_tokens=256)
 
-    def _create_extract_string_chain(self, prompt: Union[ChatPromptTemplate, PromptTemplate]) -> Runnable:
+    def _create_extract_chain(
+            self,
+            prompt: PromptTemplate,
+            parser: Union[StrOutputParser, CommaSeparatedListOutputParser, JsonOutputParser]) \
+            -> Runnable:
         """
-        Creates a processing chain for extracting information as a single string.
-
-        Args:
-            prompt (Union[ChatPromptTemplate, PromptTemplate]): The prompt to be used for extraction.
-
-        Returns:
-            Runnable: A chain object that processes the prompt with the language model and string output parser.
-        """
-        extract_string_chain = (
-            prompt
-            | self.llm
-            | StrOutputParser()
-        )
-        return extract_string_chain
-
-    def _create_extract_list_chain(self, prompt: PromptTemplate) -> Runnable:
-        """
-        Creates a processing chain for extracting information as a comma-separated list.
+        Creates a processing chain for extracting information based on the provided output parser.
 
         Args:
             prompt (PromptTemplate): The prompt to be used for extraction.
+            parser (Union[StrOutputParser, CommaSeparatedListOutputParser, JsonOutputParser]): The output parser to
+            process the model's response, allowing for different types of output (string, list, or JSON).
 
         Returns:
-            Runnable: A chain object that processes the prompt with the language model and comma-separated list output
-            parser.
+            Runnable: A chain object that processes the prompt with the language model and the specified output parser.
         """
-        extract_list_chain = (
+        extract_chain = (
             prompt
             | self.llm
-            | CommaSeparatedListOutputParser()
+            | parser
         )
-        return extract_list_chain
-
-    def _create_extract_json_chain(self, prompt: PromptTemplate) -> Runnable:
-        """
-        Creates a processing chain for extracting information as a comma-separated list.
-
-        Args:
-            prompt (PromptTemplate): The prompt to be used for extraction.
-
-        Returns:
-            Runnable: A chain object that processes the prompt with the language model and comma-separated list output
-            parser.
-        """
-        extract_json_chain = (
-            prompt
-            | self.llm
-            | JsonOutputParser()
-        )
-        return extract_json_chain
+        return extract_chain
 
     def extract_informations_from_response(self, prompt_manager: PromptManager, prompt_file_name: str, history: str) \
             -> str:
@@ -90,7 +60,7 @@ class InformationExtractor:
             str: The extracted information as a cleaned string.
         """
         prompt = prompt_manager.create_prompt(file_name=prompt_file_name)
-        string_chain = self._create_extract_string_chain(prompt)
+        string_chain = self._create_extract_chain(prompt, parser=StrOutputParser())
         extracted_informations = string_chain.invoke(history)
         clean_extracted_informations = extracted_informations.replace('\n', '').replace('"', '').strip()
         return clean_extracted_informations
@@ -110,17 +80,18 @@ class InformationExtractor:
         """
         available_plant_groups = ["perennial", "deciduous", "coniferous", "vines", "ericaceae", "fruity"]
         prompt = prompt_manager.create_prompt(file_name=prompt_file_name)
-        plant_groups = self._create_extract_list_chain(prompt).invoke(history)
+        plant_groups = self._create_extract_chain(prompt, parser=CommaSeparatedListOutputParser()).invoke(history)
         if any(element in available_plant_groups for element in plant_groups):
             return plant_groups
         else:
-            plant_groups = self._create_extract_list_chain(prompt).invoke(history)
+            plant_groups = self._create_extract_chain(prompt, parser=CommaSeparatedListOutputParser()).invoke(history)
             return plant_groups
 
-    def extract_elements_from_response(self, prompt_manager: PromptManager, prompt_file_name: str, history: str) \
-            -> str:
+    def extract_plant_names_and_image_paths(self, prompt_manager: PromptManager, prompt_file_name: str, history: str) \
+            -> Dict[str, str]:
         """
-        Extracts information from a response based on a prompt file and history, returning a cleaned string.
+        Extracts a dictionary of plant names and corresponding image paths from a response based on a prompt file and
+        history.
 
         Args:
             prompt_manager (PromptManager): An instance of PromptManager used to create the prompt.
@@ -128,15 +99,9 @@ class InformationExtractor:
             history (str): The history of interactions to be passed to the prompt.
 
         Returns:
-            str: The extracted information as a cleaned string.
+            Dict[str, str]: A dictionary where keys are plant names and values are image paths.
         """
         prompt = prompt_manager.create_prompt(file_name=prompt_file_name)
-        list_chain = self._create_extract_list_chain(prompt)
-        elements = list_chain.invoke(history)
-        return elements
-
-    def extract_json(self, prompt_manager: PromptManager, prompt_file_name: str, history: str):
-        prompt = prompt_manager.create_prompt(file_name=prompt_file_name)
-        json_chain = self._create_extract_json_chain(prompt)
+        json_chain = self._create_extract_chain(prompt, parser=JsonOutputParser())
         dict_of_plants = json_chain.invoke(history)
-        return  dict_of_plants
+        return dict_of_plants
