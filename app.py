@@ -103,6 +103,7 @@ async def handle_conversation_end(history, database):
     logger.info(f"Final response generated: {final_response}")
     chat_manager.clear_session_history()
     logger.info("Cleared session history.")
+
     await cl.Message(content=final_response).send()
     for plant_name, image_path in dict_of_plants.items():
         image = cl.Image(path=f"data/images/{image_path}", display='inline', size='large', name='plant')
