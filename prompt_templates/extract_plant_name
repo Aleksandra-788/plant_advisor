@@ -1,0 +1,7 @@
+Extract the list of plant names from the context in the order they appear.
+Return only the plant names with no additional text or formatting.
+
+Example output:
+Liquidambar styraciflua , Acer negundo
+
+Context: {final_response}

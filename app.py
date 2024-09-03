@@ -32,7 +32,10 @@ async def on_chat_start():
     cl.user_session.set("history", history)
 
     logger.info("Sending welcome message to user.")
-    await cl.Message(content="I am a virtual gardening advisor. How can I help you!").send()
+    await cl.Message(content="I am a virtual gardening assistant. "
+                             "I will help you choose the perfect plant for your garden. "
+                             "Just help me determine what you’re looking for. "
+                             "Let’s get started!").send()
 
 
 @cl.on_message
@@ -74,7 +77,7 @@ async def handle_conversation_end(history, database):
                                                                    history=history)
     logger.info(f"Extracted plant description: {plant_description}")
     logger.info("Extracting plant groups from conversation history.")
-    plant_groups = extractor.extract_list_from_response(prompt_manager=prompt_manager,
+    plant_groups = extractor.extract_plant_groups_from_response(prompt_manager=prompt_manager,
                                                         prompt_file_name="extract_plant_group_template",
                                                         history=history)
     logger.info(f"Extracted plant groups: {plant_groups}")
@@ -95,18 +98,23 @@ async def handle_conversation_end(history, database):
     logger.info(f"Final response generated: {final_response}")
 
     logger.info("Extracting image paths from final response.")
-    image_names = extractor.extract_image_paths_from_response(prompt_manager=prompt_manager,
+    image_names = extractor.extract_elements_from_response(prompt_manager=prompt_manager,
                                                              prompt_file_name="extract_image_path", history=response)
     logger.info(f"Extracted image paths from final response: {image_names}")
+
+    plant_names = extractor.extract_elements_from_response(prompt_manager=prompt_manager,
+                                                             prompt_file_name="extract_plant_name", history=final_response)
+    logger.info(f"Extracted plant names from final response: {plant_names}")
+
     chat_manager.clear_session_history()
     logger.info("Cleared session history.")
 
     await cl.Message(content=final_response).send()
 
-    for image_name in image_names:
-        if image_name != "9a58e99369a6799c9fc054c69935d7a509541b9e.jpg":
-            image = cl.Image(path=f"data/images/{image_name}", display='inline', size='large', name='plant')
-            await cl.Message(
-                content=" ",
-                elements=[image],
-            ).send()
+    for image_name, plant_name in zip(image_names, plant_names):
+        # if image_name != "9a58e99369a6799c9fc054c69935d7a509541b9e.jpg":
+        image = cl.Image(path=f"data/images/{image_name}", display='inline', size='large', name='plant')
+        await cl.Message(
+            content=plant_name,
+            elements=[image],
+        ).send()

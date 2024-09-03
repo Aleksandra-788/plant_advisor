@@ -95,7 +95,7 @@ class InformationExtractor:
         clean_extracted_informations = extracted_informations.replace('\n', '').replace('"', '').strip()
         return clean_extracted_informations
 
-    def extract_list_from_response(self, prompt_manager: PromptManager, prompt_file_name: str, history: str) \
+    def extract_plant_groups_from_response(self, prompt_manager: PromptManager, prompt_file_name: str, history: str) \
             -> List[str]:
         """
         Extracts a list of elements from a response based on a prompt file and history.
@@ -110,14 +110,14 @@ class InformationExtractor:
         """
         available_plant_groups = ["perennial", "deciduous", "coniferous", "vines", "ericaceae", "fruity"]
         prompt = prompt_manager.create_prompt(file_name=prompt_file_name)
-        list_of_elements = self._create_extract_list_chain(prompt).invoke(history)
-        if any(element in available_plant_groups for element in list_of_elements):
-            return list_of_elements
+        plant_groups = self._create_extract_list_chain(prompt).invoke(history)
+        if any(element in available_plant_groups for element in plant_groups):
+            return plant_groups
         else:
-            list_of_elements = self._create_extract_list_chain(prompt).invoke(history)
-            return list_of_elements
+            plant_groups = self._create_extract_list_chain(prompt).invoke(history)
+            return plant_groups
 
-    def extract_image_paths_from_response(self, prompt_manager: PromptManager, prompt_file_name: str, history: str) \
+    def extract_elements_from_response(self, prompt_manager: PromptManager, prompt_file_name: str, history: str) \
             -> str:
         """
         Extracts information from a response based on a prompt file and history, returning a cleaned string.
@@ -132,5 +132,5 @@ class InformationExtractor:
         """
         prompt = prompt_manager.create_prompt(file_name=prompt_file_name)
         list_chain = self._create_extract_list_chain(prompt)
-        image_paths = list_chain.invoke(history)
-        return image_paths
+        elements = list_chain.invoke(history)
+        return elements
