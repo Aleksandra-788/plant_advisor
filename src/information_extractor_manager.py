@@ -25,14 +25,14 @@ class InformationExtractor:
 
     def _create_extract_chain(
             self,
-            prompt: PromptTemplate,
+            prompt: Union [PromptTemplate, ChatPromptTemplate],
             parser: Union[StrOutputParser, CommaSeparatedListOutputParser, JsonOutputParser]) \
             -> Runnable:
         """
         Creates a processing chain for extracting information based on the provided output parser.
 
         Args:
-            prompt (PromptTemplate): The prompt to be used for extraction.
+            prompt (Union [PromptTemplate, ChatPromptTemplate]): The prompt to be used for extraction.
             parser (Union[StrOutputParser, CommaSeparatedListOutputParser, JsonOutputParser]): The output parser to
             process the model's response, allowing for different types of output (string, list, or JSON).
 
