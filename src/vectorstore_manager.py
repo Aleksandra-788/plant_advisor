@@ -4,6 +4,10 @@ import pandas as pd
 from chromadb.utils.embedding_functions import create_langchain_embedding
 import chromadb
 from langchain_chroma import Chroma
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class ChromaDatabaseManager:
@@ -56,13 +60,13 @@ class ChromaDatabaseManager:
 
     def check_collections_names(self) -> None:
         """
-        Prints the names of all collections currently stored in the ChromaDB client.
+        Logs the names of all collections currently stored in the ChromaDB client.
         """
         collections = self.client.list_collections()
         collection_names = [collection.name for collection in collections]
-        print("Collections names in client ChromaDB:")
+        logger.info("Collections names in client ChromaDB:")
         for name in collection_names:
-            print(name)
+            logger.info(f"{name}")
 
     def collection_exists_and_filled(self) -> bool:
         """
@@ -76,7 +80,7 @@ class ChromaDatabaseManager:
             if collection.count() > 0:
                 return True
         except Exception as e:
-            print(f"Collection check error: {e}")
+            logger.info(f"Collection check error: {e}")
         return False
 
     def _read_csv_file(self) -> pd.DataFrame:
@@ -136,7 +140,6 @@ class ChromaDatabaseManager:
         documents = []
         metadatas = []
         ids = []
-
         for _, row in batch.iterrows():
             documents.append(row[column_names[6]])
             metadatas.append({
@@ -149,7 +152,6 @@ class ChromaDatabaseManager:
             })
             ids.append(str(start_id))
             start_id += 1
-
         self.collection.add(
             documents=documents,
             metadatas=metadatas,
@@ -168,17 +170,13 @@ class ChromaDatabaseManager:
         num_batches = len(df) // batch_size + (1 if len(df) % batch_size != 0 else 0)
         start_id = 1
         for i in range(num_batches):
-            print(f"Batch number: {i}")
+            logger.info(f"Batch number: {i}")
             batch = df[i * batch_size:(i + 1) * batch_size]
             self._process_batch(batch, start_id, column_names)
             start_id += batch_size
-
         num_documents = self.collection.count()
-        print(f"Number of documents in the collection: {num_documents}")
-
+        logger.info(f"Number of documents in the collection: {num_documents}")
         if num_documents == len(df):
-            print("All documents have been successfully added to the collection.")
+            logger.info("All documents have been successfully added to the collection.")
         else:
-            print(f"Some documents are missing in the collection. Expected {len(df)}, but got {num_documents}.")
-
-
+            logger.info(f"Some documents are missing in the collection. Expected {len(df)}, but got {num_documents}.")
