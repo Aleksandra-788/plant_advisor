@@ -39,15 +39,44 @@ class ChromaDatabaseManager:
         self.collection_name = collection_name
         self.client = chromadb.PersistentClient(path="chroma/")
         self.collection = self._create_collection_chromadb()
+        self._check_and_create_chroma_collection()
+        self.database = self._create_chroma_database()
 
-    def create_embedding_vectorstore(self) -> None:
+    def _check_and_create_chroma_collection(self):
+        """
+           Checks if the data has been embedded and the collection has been created in ChromaDB.
+           If the collection does not exist or is not filled, it creates the embedding vectorstore.
+        """
+        logger.info("Checking if database collection exists and is filled...")
+        if not self._collection_exists_and_filled():
+            logger.info("Creating embedding vectorstore...")
+            self._embed_data()
+        else:
+            logger.info("Collection already exists and is filled with data.")
+
+    def _embed_data(self) -> None:
         """
         Embeds the data from the CSV file and stores it in the ChromaDB collection.
         """
         df = self._read_csv_file()
-        self._embed_csv_data(df)
+        column_names = self._get_column_names(df)
+        batch_size = 100
+        num_batches = len(df) // batch_size + (1 if len(df) % batch_size != 0 else 0)
+        # start_id = 1
+        for i in range(num_batches):
+            logger.info(f"Batch number: {i}")
+            batch = df[i * batch_size:(i + 1) * batch_size]
+            # self._process_batch(batch, start_id, column_names)
+            self._process_batch(batch, i * batch_size + 1, column_names)
+            # start_id += batch_size
+        num_documents = self.collection.count()
+        logger.info(f"Number of documents in the collection: {num_documents}")
+        if num_documents == len(df):
+            logger.info("All documents have been successfully added to the collection.")
+        else:
+            logger.info(f"Some documents are missing in the collection. Expected {len(df)}, but got {num_documents}.")
 
-    def create_chroma_database(self) -> Chroma:
+    def _create_chroma_database(self) -> Chroma:
         """
         Creates a Chroma database from the embedded data.
 
@@ -58,17 +87,7 @@ class ChromaDatabaseManager:
         db = Chroma(client=self.client, collection_name=self.collection_name, embedding_function=ef)
         return db
 
-    def check_collections_names(self) -> None:
-        """
-        Logs the names of all collections currently stored in the ChromaDB client.
-        """
-        collections = self.client.list_collections()
-        collection_names = [collection.name for collection in collections]
-        logger.info("Collections names in client ChromaDB:")
-        for name in collection_names:
-            logger.info(f"{name}")
-
-    def collection_exists_and_filled(self) -> bool:
+    def _collection_exists_and_filled(self) -> bool:
         """
         Checks if the ChromaDB collection exists and is filled with documents.
 
@@ -158,25 +177,12 @@ class ChromaDatabaseManager:
             ids=ids
         )
 
-    def _embed_csv_data(self, df: pd.DataFrame) -> None:
+    def check_collections_names(self) -> None:
         """
-        Embeds the data from the DataFrame and adds it to the ChromaDB collection in batches.
-
-        Args:
-            df (pd.DataFrame): The DataFrame containing data to be embedded and stored.
+        Logs the names of all collections currently stored in the ChromaDB client.
         """
-        column_names = self._get_column_names(df)
-        batch_size = 100
-        num_batches = len(df) // batch_size + (1 if len(df) % batch_size != 0 else 0)
-        start_id = 1
-        for i in range(num_batches):
-            logger.info(f"Batch number: {i}")
-            batch = df[i * batch_size:(i + 1) * batch_size]
-            self._process_batch(batch, start_id, column_names)
-            start_id += batch_size
-        num_documents = self.collection.count()
-        logger.info(f"Number of documents in the collection: {num_documents}")
-        if num_documents == len(df):
-            logger.info("All documents have been successfully added to the collection.")
-        else:
-            logger.info(f"Some documents are missing in the collection. Expected {len(df)}, but got {num_documents}.")
+        collections = self.client.list_collections()
+        collection_names = [collection.name for collection in collections]
+        logger.info("Collections names in client ChromaDB:")
+        for name in collection_names:
+            logger.info(f"{name}")

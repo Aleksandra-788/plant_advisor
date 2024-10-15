@@ -1,6 +1,6 @@
 import logging
 from src.chat_manager import ChatManager
-from src.vectorstore_manager import ChromaDatabaseManager
+from src.chroma_database_manager import ChromaDatabaseManager
 from src.information_extractor_manager import InformationExtractor
 from src.retriever_manager import RAGManager
 from src.prompt_manager import PromptManager
@@ -16,21 +16,7 @@ chat_manager = ChatManager(prompt_manager=prompt_manager)
 database_manager = ChromaDatabaseManager()
 
 
-def initialize_database():
-    """
-       Initialize the database by checking if the collection exists and is filled.
-       If not, create the embedding vectorstore.
-    """
-    logger.info("Checking if database collection exists and is filled...")
-    if not database_manager.collection_exists_and_filled():
-        logger.info("Creating embedding vectorstore...")
-        database_manager.create_embedding_vectorstore()
-    else:
-        logger.info("Collection already exists and is filled with data.")
-
-
-initialize_database()
-database = database_manager.create_chroma_database()
+database = database_manager.database
 
 
 @cl.on_chat_start

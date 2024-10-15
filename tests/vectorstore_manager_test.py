@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 import pandas as pd
-from src.vectorstore_manager import ChromaDatabaseManager
+from src.chroma_database_manager import ChromaDatabaseManager
 
 
 class TestChromaDatabaseManager(unittest.TestCase):
@@ -122,7 +122,7 @@ class TestChromaDatabaseManager(unittest.TestCase):
     def test_create_embedding_vectorstore(self, mock_read_csv, mock_embed_csv):
         df_mock = pd.DataFrame({"col1": ["data1", "data2"]})
         mock_read_csv.return_value = df_mock
-        self.manager.create_embedding_vectorstore()
+        self.manager.embed_data()
         mock_read_csv.assert_called_once()
         mock_embed_csv.assert_called_once_with(df_mock)
 
