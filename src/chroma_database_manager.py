@@ -42,7 +42,7 @@ class ChromaDatabaseManager:
         self._check_and_create_chroma_collection()
         self.database = self._create_chroma_database()
 
-    def _check_and_create_chroma_collection(self):
+    def _check_and_create_chroma_collection(self) -> None:
         """
            Checks if the data has been embedded and the collection has been created in ChromaDB.
            If the collection does not exist or is not filled, it creates the embedding vectorstore.
@@ -59,16 +59,14 @@ class ChromaDatabaseManager:
         Embeds the data from the CSV file and stores it in the ChromaDB collection.
         """
         df = self._read_csv_file()
-        column_names = self._get_column_names(df)
+        column_names = df.columns
         batch_size = 100
         num_batches = len(df) // batch_size + (1 if len(df) % batch_size != 0 else 0)
-        # start_id = 1
         for i in range(num_batches):
             logger.info(f"Batch number: {i}")
+            logger.info(f"Left {num_batches-i} batches to finish.")
             batch = df[i * batch_size:(i + 1) * batch_size]
-            # self._process_batch(batch, start_id, column_names)
             self._process_batch(batch, i * batch_size + 1, column_names)
-            # start_id += batch_size
         num_documents = self.collection.count()
         logger.info(f"Number of documents in the collection: {num_documents}")
         if num_documents == len(df):
@@ -111,19 +109,6 @@ class ChromaDatabaseManager:
         """
         df = pd.read_csv(self.csv_file_path)
         return df
-
-    def _get_column_names(self, df: pd.DataFrame) -> List[str]:
-        """
-        Retrieves the column names from the DataFrame.
-
-        Args:
-            df (pd.DataFrame): The DataFrame from which to extract column names.
-
-        Returns:
-            List[str]: A list of column names in the DataFrame.
-        """
-        column_names = df.columns
-        return column_names
 
     def _define_embedding_function(self) -> Any:
         """
@@ -176,13 +161,3 @@ class ChromaDatabaseManager:
             metadatas=metadatas,
             ids=ids
         )
-
-    def check_collections_names(self) -> None:
-        """
-        Logs the names of all collections currently stored in the ChromaDB client.
-        """
-        collections = self.client.list_collections()
-        collection_names = [collection.name for collection in collections]
-        logger.info("Collections names in client ChromaDB:")
-        for name in collection_names:
-            logger.info(f"{name}")

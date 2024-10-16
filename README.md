@@ -2,7 +2,7 @@
 
 This project is a virtual gardening advisor built using a chat interface. The system uses Retrieval-Augmented Generation (RAG) to enhance the user experience by offering personalized plant recommendations.
 
-## Program Architecture
+## Architecture
 
 A database was created using Scrapy to extract data from the e-katalogroslin website. The data was subsequently translated into English and embedded into ChromaDB.
 

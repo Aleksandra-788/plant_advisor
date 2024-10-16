@@ -14,10 +14,12 @@ class PromptManager:
         """
         self.template_directory = template_directory
 
-    def _load_template(self, file_name) -> str:
+    def _load_template(self, file_name: str) -> str:
         """
         Loads the prompt template from a file.
 
+        Args:
+            file_name (str): The name of the file containing the prompt template.
         Returns:
             str: The content of the template file as a string.
 
@@ -26,29 +28,28 @@ class PromptManager:
         with open(full_path, 'r') as file:
             return file.read()
 
-    def create_prompt(self, file_name) -> Union[ChatPromptTemplate, PromptTemplate]:
+    def create_prompt(self, file_name: str) -> Union[ChatPromptTemplate, PromptTemplate]:
         """
         Creates a prompt object based on the specified template file.
-
         If the file name is "conversational_template", it creates a ChatPromptTemplate with a system message,
         a placeholder for message history, and a human input message. For other file names, it creates a standard
         PromptTemplate.
 
+        Args:
+            file_name (str): The name of the file containing the prompt template.
         Returns:
             Union[ChatPromptTemplate, PromptTemplate]: The prompt object created from the template file.
 
         """
-
+        template = self._load_template(file_name)
         if file_name == "conversational_template":
-            conversational_template = self._load_template(file_name)
             prompt = ChatPromptTemplate.from_messages(
                 [
-                    ("system", conversational_template),
+                    ("system", template),
                     MessagesPlaceholder(variable_name="history"),
                     ("human", "{input}"),
                 ]
             )
         else:
-            template = self._load_template(file_name)
             prompt = PromptTemplate.from_template(template)
         return prompt
